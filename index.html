@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Unlimited Laundering Stats</title>
+  <style>
+    /* ========== RESET & BODY ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #0b0b0b;
+      color: #00ff00;
+      font-family: 'Courier New', Courier, monospace;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      animation: bgPulse 5s infinite;
+    }
+
+    @keyframes bgPulse {
+      0%, 100% { background-color: #0b0b0b; }
+      50% { background-color: #111111; }
+    }
+
+    /* ========== HEADER ========== */
+    h1 {
+      font-size: 3rem;
+      color: #00ff99;
+      text-shadow: 0 0 10px #00ff99;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 30px;
+      animation: flicker 2s infinite;
+    }
+
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+      }
+      20%, 24%, 55% {
+        opacity: 0.4;
+      }
+    }
+
+    /* ========== COMMUNITY COUNT ========== */
+    .center-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    #total-community-count {
+      display: inline-block;
+      font-size: 5rem;
+      font-weight: bold;
+      color: #00ff00;
+      text-shadow: 0 0 10px #00ff00;
+      margin: 20px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-align: center;
+      position: relative;
+    }
+
+    /* Optional blinking cursor like a terminal */
+    #total-community-count::after {
+      content: '|';
+      animation: blink 1s steps(2, start) infinite;
+      position: absolute;
+      right: -20px;
+      color: #00ff00;
+    }
+
+    @keyframes blink {
+      to {
+        visibility: hidden;
+      }
+    }
+
+    /* ========== DOWNLOAD BUTTON ========== */
+    #download-link {
+      margin-top: 30px;
+      padding: 12px 28px;
+      background-color: transparent;
+      color: #00ff00;
+      border: 2px solid #00ff00;
+      font-size: 1.25rem;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 6px;
+      box-shadow: 0 0 12px #00ff00;
+      transition: all 0.2s ease-in-out;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #download-link:hover {
+      background-color: #00ff00;
+      color: #0b0b0b;
+      box-shadow: 0 0 30px #00ff00;
+    }
+  </style>
+</head>
+<body>
+  <h1>Unlimited Laundering Community Stats</h1>
+  
+  <div class="center-wrapper">
+    <div id="total-community-count">Loading...</div>
+  </div>
+  
+  <a href="https://www.nexusmods.com/schedule1/mods/285" id="download-link" target="_blank">Download Mod</a>
+
+  <script>
+    async function fetchTotalCommunityCount() {
+      try {
+        const response = await fetch("https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLgb6nLVXG79mrwYa_GO1jFAW9Wni_sQStBJBw1LDrfWgUE54D8eS_0UeFCa7GHy_oftrz4KXyf3JEKFKPxvA3qiNLq7eKoqTPPMfBrke3OI8jQaW4wUlxZbfKADbQD30lB3PIzNIRcPkv7KuJroku7tZwYTsDvRexR87n8XEplfNMA63wIPMwDOIjixe7q1YwyXKTf7AcozCkEs-92B6OiN-SalLnxkitPwsd2qzRWCd6MvUgUy8sJ8As7NXNqXb31SXbhIVtjb3EmHAwiYXb1tsJFdcwRUxhhOUEpM&lib=MhCucbsL5snIoggTlPHDt3z_CNhzj7S9w");
+        const data = await response.json();
+        const communityCount = data.currentUsers;
+        document.getElementById("total-community-count").textContent = `${communityCount} Total Users`;
+      } catch (error) {
+        document.getElementById("total-community-count").textContent = "Error loading data";
+        console.error("Fetch error:", error);
+      }
+    }
+
+    async function sendDiscordNotification() {
+      try {
+        const webhookUrl = "https://discord.com/api/webhooks/1383541242218025111/FkYkTT4qPECE5XlGeG7EMHpBW4mvPCWM4960bZ04IBo9y7RB3hca70mr89l_WT6miBRQ";
+        const visitCount = localStorage.getItem("visitCount") || 0;
+        const message = {
+          content: `New visit to the Unlimited Laundering Stats page! Current visit count: ${parseInt(visitCount) + 1}`
+        };
+        await fetch(webhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(message)
+        });
+        localStorage.setItem("visitCount", parseInt(visitCount) + 1);
+      } catch (error) {
+        console.error("Error sending Discord notification:", error);
+      }
+    }
+
+    fetchTotalCommunityCount();
+    sendDiscordNotification();
+    setInterval(fetchTotalCommunityCount, 15000);
+  </script>
+</body>
+</html>
